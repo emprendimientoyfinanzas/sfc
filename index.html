@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Financiero Colombiano | La Guía Interactiva Definitiva</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0D47A1; --secondary-blue: #1976D2; --accent-gold: #FFC107;
+            --bg-light: #f0f4f8; --text-dark: #212121; --card-bg: rgba(255, 255, 255, 0.9);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--bg-light); color: var(--text-dark); overflow-x: hidden; }
+        .floating-elements { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; pointer-events: none; }
+        .coin { position: absolute; background: var(--accent-gold); border-radius: 50%; opacity: 0.2; animation: float 20s infinite linear; }
+        .coin:nth-child(1) { width: 60px; height: 60px; left: 10%; animation-duration: 25s; }
+        .coin:nth-child(2) { width: 20px; height: 20px; left: 30%; animation-duration: 30s; animation-delay: 5s; }
+        @keyframes float { 0% { transform: translateY(100vh) rotate(0deg); } 100% { transform: translateY(-100px) rotate(720deg); } }
+        
+        #progress-bar { position: fixed; top: 0; left: 0; height: 5px; background: linear-gradient(90deg, var(--accent-gold), #FFD54F); width: 0%; z-index: 101; }
+        nav { position: sticky; top: 0; width: 100%; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); padding: 1rem 0; z-index: 100; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+        .logo { font-weight: 700; font-size: 1.5rem; color: var(--primary-blue); }
+        .nav-menu { list-style: none; display: flex; flex-wrap: wrap; gap: 1rem; margin: 0; padding: 0; font-size: 0.9rem;}
+        .nav-menu a { text-decoration: none; color: var(--text-dark); font-weight: 600; transition: color 0.3s, background-color 0.3s; padding: 5px 10px; border-radius: 5px; }
+        .nav-menu a:hover { color: var(--primary-blue); background-color: rgba(0,0,0,0.05); }
+        .nav-controls { position: fixed; top: 50%; transform: translateY(-50%); width: 100%; display: flex; justify-content: space-between; padding: 0 1.5rem; z-index: 50; pointer-events: none; }
+        .nav-btn { pointer-events: all; background: var(--primary-blue); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; font-size: 1.8rem; cursor: pointer; box-shadow: var(--shadow); transition: transform 0.3s, background-color 0.3s; display: flex; justify-content: center; align-items: center; }
+        .nav-btn:hover { transform: scale(1.1); background-color: var(--secondary-blue); }
+
+        main { position: relative; }
+        .section { min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 6rem 2rem; opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; position: relative; }
+        .section.visible { opacity: 1; transform: translateY(0); }
+        .container { max-width: 1200px; text-align: center; width: 100%; position: relative; z-index: 2; }
+        h1 { font-size: 3.5rem; color: var(--primary-blue); margin-bottom: 1rem; }
+        h2 { font-size: 2.8rem; color: var(--primary-blue); margin-bottom: 1rem; }
+        p.subtitle { font-size: 1.2rem; max-width: 800px; margin: 0 auto 3rem auto; color: #555; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+        
+        #intro { background-image: url('https://cdn.pixabay.com/photo/2022/01/11/21/18/building-6931523_1280.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'); background-size: cover; background-position: center; background-attachment: fixed; }
+        #intro::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6); z-index: 1; }
+        #intro h1 { color: #FFFFFF; text-shadow: 2px 2px 8px rgba(0,0,0,0.7); }
+        #intro p.subtitle { color: rgba(255, 255, 255, 0.9); text-shadow: 1px 1px 4px rgba(0,0,0,0.7); }
+        
+        .flip-card { background-color: transparent; perspective: 1000px; min-height: 300px; position: relative; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+        .flip-card:hover .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            padding: 2rem; border-radius: 15px;
+            box-shadow: var(--shadow); background: var(--card-bg);
+            text-align: center;
+        }
+        .flip-card-back { transform: rotateY(180deg); font-size: 1rem; }
+        .card-icon { font-size: 3.5rem; margin-bottom: 1rem; color: var(--secondary-blue); }
+        .flip-card .card-title { font-size: 1.4rem; margin:0; }
+        .flip-card-back .card-subtitle { font-weight: 700; margin-bottom: 1.5rem; color: var(--primary-blue); font-size: 1.2rem; }
+        .flip-card-back ul { list-style: none; padding: 0; margin: 0; }
+        .flip-card-back li { margin-bottom: 0.8rem; }
+        .flip-card-back p b { color: var(--primary-blue); }
+
+        .arrow-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .arrow { position: absolute; top: 50%; width: calc(50% + 1rem); height: 4px; background: linear-gradient(to right, var(--secondary-blue), var(--accent-gold)); opacity: 0.6; }
+        .arrow::after { content: ''; position: absolute; width: 16px; height: 16px; border-top: 4px solid var(--accent-gold); border-right: 4px solid var(--accent-gold); }
+        .arrow.arrow-left { right: 50%; transform: translateY(-50%); }
+        .arrow.arrow-left::after { left: -2px; top: -6px; transform: rotate(-135deg); }
+        .arrow.arrow-right { left: 50%; transform: translateY(-50%); }
+        .arrow.arrow-right::after { right: -2px; top: -6px; transform: rotate(45deg); }
+
+        .simulator { background: var(--card-bg); padding: 2.5rem; border-radius: 15px; box-shadow: var(--shadow); display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; text-align: left; max-width: 900px; margin: auto; }
+        .sim-controls label { font-weight: 600; display: block; margin-bottom: 0.5rem; }
+        .sim-controls input { width: 100%; padding: 0.8rem; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .sim-result { background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue)); color: white; border-radius: 10px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+        .main-result { font-size: 2.2rem; font-weight: 700; margin-bottom: 1rem; }
+        .sub-result { font-size: 1rem; width: 100%; display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 0.8rem; margin-top: 0.8rem;}
+
+        .glossary-container { max-width: 900px; margin: 0 auto; text-align: left; }
+        .glossary-item { background: var(--card-bg); margin-bottom: 1rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .glossary-item summary { padding: 1rem 1.5rem; font-size: 1.2rem; font-weight: 600; cursor: pointer; outline: none; list-style: none; position: relative; color: var(--primary-blue); }
+        .glossary-item summary::-webkit-details-marker { display: none; }
+        .glossary-item summary::after { content: '+'; position: absolute; right: 1.5rem; font-size: 1.8rem; color: var(--secondary-blue); transition: transform 0.3s ease; }
+        .glossary-item[open] summary::after { transform: rotate(45deg); }
+        .glossary-item .glossary-content { padding: 0 1.5rem 1.5rem; margin: 0; border-top: 1px solid rgba(0,0,0,0.1); }
+
+        .quiz-container { background: var(--card-bg); padding: 2.5rem; border-radius: 15px; box-shadow: var(--shadow); max-width: 800px; margin: auto; }
+        .question { margin-bottom: 2rem; }
+        .question:last-child { margin-bottom: 0; }
+        .question p { font-size: 1.1rem; margin-bottom: 1rem; }
+        .answers { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+        .answer-btn { background: white; border: 2px solid var(--secondary-blue); color: var(--secondary-blue); padding: 0.8rem 1.5rem; border-radius: 50px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .answer-btn:hover:not(:disabled) { background: var(--secondary-blue); color: white; }
+        .answer-btn.correct, .answer-btn.incorrect { color: white; }
+        .answer-btn.correct { background: #4CAF50; border-color: #4CAF50; }
+        .answer-btn.incorrect { background: #F44336; border-color: #F44336; }
+        .answer-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+        .feedback { margin-top: 1.2rem; font-weight: 600; min-height: 25px; }
+
+        @media (max-width: 1200px) { .nav-menu { display: none; } }
+        @media (max-width: 950px) { .arrow-container { display: none; } }
+        @media (max-width: 768px) { h1 { font-size: 2.5rem; } h2 { font-size: 2.2rem; } #intro { background-attachment: scroll; } .nav-btn { width: 40px; height: 40px; font-size: 1.5rem; } .nav-controls { padding: 0 0.5rem; } .simulator { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="floating-elements"><div class="coin"></div><div class="coin"></div></div>
+    <div id="progress-bar"></div>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">FinanCo 🚀</div>
+            <ul class="nav-menu">
+                <li><a href="#intro">Inicio</a></li>
+                <li><a href="#reguladores">Reguladores</a></li>
+                <li><a href="#intermediarios">Intermediarios</a></li>
+                <li><a href="#inclusion-financiera">Inclusión</a></li>
+                <li><a href="#educacion-financiera">Educación</a></li>
+                <li><a href="#productos-servicios">Productos</a></li>
+                <li><a href="#proteccion">Protección</a></li>
+                <li><a href="#glosario">Conceptos</a></li>
+                <li><a href="#quiz">Quiz</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="nav-controls">
+        <button id="prev-btn" class="nav-btn">‹</button>
+        <button id="next-btn" class="nav-btn">›</button>
+    </div>
+
+    <main>
+        <section id="intro" class="section">
+            <div class="container"><h1>El Sistema Financiero Colombiano</h1><p class="subtitle">La red de entidades que conecta el ahorro con la inversión, permitiendo que sus metas y las del país se hagan realidad. ¡Descúbrala de forma simple e interactiva!</p></div>
+        </section>
+        
+        <section id="reguladores" class="section">
+            <div class="container">
+                <h2>Reguladores del Sistema</h2><p class="subtitle">Las entidades que diseñan las reglas y vigilan el juego para garantizar estabilidad y confianza.</p>
+                <div class="grid">
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">🏛️</div><h3 class="card-title">Banco de la República</h3></div><div class="flip-card-back"><h4 class="card-subtitle">El Guardián de la Moneda</h4><ul><li>🎯 Control de inflación</li><li>💵 Emisión de moneda</li><li>🏦 Prestamista de última instancia</li><li>🌍 Administra reservas internacionales</li></ul></div></div></div>
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">🔍</div><h3 class="card-title">Superintendencia Financiera</h3></div><div class="flip-card-back"><h4 class="card-subtitle">El "Árbitro" que lo Protege</h4><ul><li>⚖️ Vigila a todas las entidades</li><li>🛡️ Garantiza seguridad y transparencia</li><li>👥 Protege al consumidor financiero</li></ul></div></div></div>
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">📐</div><h3 class="card-title">Unidad de Regulación (URF)</h3></div><div class="flip-card-back"><h4 class="card-subtitle">El Arquitecto de las Reglas</h4><ul><li>📝 Diseña las normas del sistema</li><li>🏛️ Asesora al Gobierno Nacional</li><li>⚖️ Busca la estabilidad y eficiencia</li></ul></div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="intermediarios" class="section">
+            <div class="container">
+                <h2>Intermediarios Financieros</h2><p class="subtitle">Los actores que tradicionalmente han conectado a quienes ahorran con quienes necesitan crédito.</p>
+                <div class="grid">
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">🏦</div><h3 class="card-title">Bancos Comerciales</h3></div><div class="flip-card-back"><h4 class="card-subtitle">El Corazón del Sistema</h4><ul><li>📥 Reciben depósitos del público</li><li>💸 Otorgan créditos de consumo y vivienda</li><li>↔️ Facilitan pagos y transferencias</li></ul></div></div></div>
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">🤝</div><h3 class="card-title">Cooperativas Financieras</h3></div><div class="flip-card-back"><h4 class="card-subtitle">Unión y Beneficio Mutuo</h4><ul><li>👥 Pertenecen a sus propios asociados</li><li>💖 Enfoque en el bienestar de sus miembros</li><li>📈 Ofrecen productos con tasas competitivas</li></ul></div></div></div>
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">📈</div><h3 class="card-title">Mercado de Capitales</h3></div><div class="flip-card-back"><h4 class="card-subtitle">Inversión a Gran Escala</h4><ul><li>📊 <b>BVC:</b> donde se negocian acciones</li><li>💰 <b>FICs:</b> carteras para invertir con expertos</li><li>👨‍⚖️ <b>AMV:</b> autorregula y certifica</li></ul></div></div></div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="inclusion-financiera" class="section">
+            <div class="container">
+                <h2>Inclusión Financiera</h2><p class="subtitle">Los actores que revolucionan el acceso al dinero, llevando los servicios financieros a todos los rincones del país.</p>
+                <div class="grid">
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">💡</div><h3 class="card-title">Microfinancieras</h3></div><div class="flip-card-back"><h4 class="card-subtitle">El Motor de los Microempresarios</h4><ul><li>🌱 Otorgan microcréditos a pequeños negocios</li><li>🚀 Apoyan a quienes inician su vida crediticia</li><li>🏘️ Impulsan el crecimiento económico local</li></ul></div></div></div>
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">📱</div><h3 class="card-title">Fintech y Billeteras Digitales</h3></div><div class="flip-card-back"><h4 class="card-subtitle">El Banco en su Celular</h4><ul><li>⚡ Servicios ágiles y de bajo costo</li><li>⏰ Permiten transferir y pagar 24/7</li><li>📲 100% digitales (Nequi, Daviplata, etc.)</li></ul></div></div></div>
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">🏪</div><h3 class="card-title">Corresponsales Bancarios</h3></div><div class="flip-card-back"><h4 class="card-subtitle">El Banco a la Vuelta de la Esquina</h4><ul><li>🛒 Tiendas y comercios aliados a los bancos</li><li>🏧 Permiten retiros, depósitos y pagos</li><li>🗺️ Llevan el sistema a zonas rurales y barrios</li></ul></div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="educacion-financiera" class="section">
+            <div class="container">
+                <h2>El Conocimiento es Poder</h2><p class="subtitle">La Educación Financiera es el pilar que conecta el acceso a los productos con su uso responsable y seguro.</p>
+                <div class="grid">
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">🎓</div><h3 class="card-title">Bancarización</h3></div><div class="flip-card-back"><h4 class="card-subtitle">Mejor Uso de Productos</h4><p>La educación financiera enseña a los clientes bancarizados a gestionar mejor sus créditos, aprovechar el ahorro y construir un historial crediticio sólido.</p></div></div></div>
+                    <div class="flip-card">
+                        <div class="arrow-container">
+                            <div class="arrow arrow-left"></div>
+                            <div class="arrow arrow-right"></div>
+                        </div>
+                        <div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">🧠</div><h3 class="card-title">Educación Financiera</h3></div><div class="flip-card-back"><h4 class="card-subtitle">La Base de Todo</h4><p>Es el conjunto de habilidades y conocimientos que le permiten tomar decisiones informadas sobre sus recursos financieros para alcanzar su bienestar.</p></div></div>
+                    </div>
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">🛡️</div><h3 class="card-title">Prevención de Estafas</h3></div><div class="flip-card-back"><h4 class="card-subtitle">Protéjase de los Fraudes</h4><p>Saber identificar estafas (phishing, suplantación) y entender los peligros del crédito informal es fundamental para proteger su dinero.</p></div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="productos-servicios" class="section">
+            <div class="container">
+                <h2>Productos y Servicios Financieros</h2><p class="subtitle">Los principales elementos que el sistema pone a su disposición.</p>
+                <div class="grid">
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">🏦</div><h3 class="card-title">Cuentas Bancarias</h3></div><div class="flip-card-back"><h4 class="card-subtitle">🏆 Producto</h4><p><b>Ahorros:</b> Para guardar su dinero y ganar intereses. Incluye Cuentas de Trámite Simplificado (CATS) de billeteras digitales.<br><b>Corriente:</b> Para manejar cheques y mayor volumen de transacciones.</p></div></div></div>
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">💸</div><h3 class="card-title">Créditos</h3></div><div class="flip-card-back"><h4 class="card-subtitle">🏆 Producto</h4><p>Préstamos para un fin específico. Algunos, como el de <b>vivienda</b>, tienen una <b>garantía real</b> (el inmueble), lo que permite tasas más bajas. Otros, como los de <b>consumo</b>, se basan en su capacidad de pago.</p></div></div></div>
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">💳</div><h3 class="card-title">Tarjeta de Crédito</h3></div><div class="flip-card-back"><h4 class="card-subtitle">🏆 Producto</h4><p>Un cupo de crédito rotativo para compras. Usarlo de forma inteligente implica pagar a <b>una sola cuota</b> para no generar intereses. Diferir a varias cuotas es una forma de financiación.</p></div></div></div>
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">🛡️</div><h3 class="card-title">Seguros</h3></div><div class="flip-card-back"><h4 class="card-subtitle">🏆 Producto</h4><p>Contratos que lo protegen financieramente ante imprevistos. Transfiere el riesgo a una aseguradora a cambio de un pago (prima).<br><b>Ejemplos:</b> Seguro de vida, de vehículo, de hogar.</p></div></div></div>
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">📈</div><h3 class="card-title">Inversión</h3></div><div class="flip-card-back"><h4 class="card-subtitle">🏆 Producto</h4><p><b>CDT:</b> Invierte un monto a un plazo fijo para una rentabilidad garantizada y segura.<br><b>Fondos de Inversión Colectiva (FICs):</b> Carteras con múltiples activos, administradas por expertos.</p></div></div></div>
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">💻</div><h3 class="card-title">Servicios Transaccionales</h3></div><div class="flip-card-back"><h4 class="card-subtitle">🛠️ Servicio</h4><p>La capacidad de usar su dinero sin moverlo físicamente: pagos de servicios, transferencias (PSE), compras en línea y gestión de productos a través de apps y portales web.</p></div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="proteccion" class="section">
+            <div class="container">
+                <h2>Mecanismos de Protección</h2><p class="subtitle">No está solo. Estas entidades y herramientas velan por sus derechos y la seguridad de su dinero.</p>
+                 <div class="grid">
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">📊</div><h3 class="card-title">Centrales de Riesgo</h3></div><div class="flip-card-back"><h4 class="card-subtitle">Su Hoja de Vida Crediticia</h4><p>Registran su comportamiento de pago (Ej: DataCrédito, TransUnion). La ley de Habeas Data le permite consultar y rectificar su información gratuitamente.</p></div></div></div>
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">🛡️</div><h3 class="card-title">Fondos de Garantía</h3></div><div class="flip-card-back"><h4 class="card-subtitle">El Seguro de Depósitos de sus Ahorros</h4><ul><li>🏦 <b>Fogafín</b> protege su dinero en bancos</li><li>🤝 <b>Fogacoop</b> protege en cooperativas</li><li>✅ Es un respaldo automático y gratuito</li></ul></div></div></div>
+                    <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><div class="card-icon">📞</div><h3 class="card-title">Defensor del Consumidor</h3></div><div class="flip-card-back"><h4 class="card-subtitle">Su Aliado Gratuito</h4><p>Una figura en cada entidad para atender sus quejas de forma imparcial si no logra una solución directa.</p></div></div></div>
+            </div>
+        </section>
+
+        <section id="glosario" class="section">
+            <div class="container">
+                <h2>💡 Conceptos Clave para Dominar</h2><p class="subtitle">Entender estos términos le ayudará a navegar el sistema como un experto. ¡Haga clic para descubrir!</p>
+                <div class="glossary-container">
+                    <details class="glossary-item"><summary>Puntaje de Crédito</summary><div class="glossary-content"><p>Su calificación como deudor. Se basa en su comportamiento de pago histórico. Un puntaje alto le da acceso a mejores condiciones de crédito.</p></div></details>
+                    <details class="glossary-item"><summary>Tasa de Usura</summary><div class="glossary-content"><p>Es el interés MÁXIMO que una entidad puede cobrarle legalmente por un crédito. La Superfinanciera la certifica para protegerlo de abusos.</p></div></details>
+                    <details class="glossary-item"><summary>Perfil de Inversionista</summary><div class="glossary-content"><p>Define su tolerancia al riesgo. Puede ser <b>Conservador</b> (prioriza seguridad), <b>Moderado</b> (busca balance) o <b>Agresivo</b> (busca alta rentabilidad asumiendo más riesgo).</p></div></details>
+                    <details class="glossary-item"><summary>Rentabilidad</summary><div class="glossary-content"><p>Es la ganancia obtenida de una inversión, usualmente expresada como un porcentaje. Puede ser fija (como en un CDT) o variable (como en acciones).</p></div></details>
+                    <details class="glossary-item"><summary>Riesgo Financiero</summary><div class="glossary-content"><p>La probabilidad de que una inversión no genere la rentabilidad esperada o que se pierda parte del capital. A mayor riesgo potencial, mayor rentabilidad esperada.</p></div></details>
+                    <details class="glossary-item"><summary>Portafolio de Inversión</summary><div class="glossary-content"><p>El conjunto de diferentes activos financieros (como acciones, bonos, FICs, CDTs) que posee una persona para diversificar el riesgo y no "poner todos los huevos en la misma canasta".</p></div></details>
+                </div>
+            </div>
+        </section>
+        
+        <section id="simulador" class="section">
+            <div class="container">
+                <h2>Simulador Interactivo de Crédito</h2><p class="subtitle">Calcule una cuota mensual aproximada. ¡Mueva los valores y planee sus finanzas!</p>
+                <div class="simulator">
+                    <div class="sim-controls">
+                        <div><label for="amount">Monto del crédito (COP)</label><input type="number" id="amount" value="10000000" step="1000000"></div><br>
+                        <div><label for="rate">Tasa de Interés (% Efectiva Anual)</label><input type="number" id="rate" value="25" step="0.5"></div><br>
+                        <div><label for="term">Plazo (Meses)</label><input type="number" id="term" value="36" step="12"></div>
+                    </div>
+                    <div class="sim-result">
+                        <p style="margin:0; font-size:1.1rem;">Cuota Mensual Aprox.</p>
+                        <div class="main-result" id="monthly-payment">$ 0</div>
+                        <div class="sub-result"><span>Total Intereses:</span> <span id="total-interest">$ 0</span></div>
+                        <div class="sub-result"><span>Total a Pagar:</span> <span id="total-payment">$ 0</span></div>
+                    </div>
+                </div>
+                <p style="font-size: 0.8rem; color: #666; margin-top: 1.5rem;"><i>*Este es un valor aproximado. La cuota mensual real puede variar e incluir costos adicionales como seguros y gastos administrativos, según la entidad.</i></p>
+            </div>
+        </section>
+
+        <section id="quiz" class="section">
+            <div class="container">
+                <h2>¡Ponga a Prueba su Conocimiento!</h2><p class="subtitle">Responda estas preguntas rápidas para afianzar lo que ha aprendido.</p>
+                <div class="quiz-container">
+                    <div class="question">
+                        <p><b>1. ¿Qué entidad vigila a los bancos para proteger su dinero?</b></p>
+                        <div class="answers" id="q1-answers"><button class="answer-btn">Banco de la República</button><button class="answer-btn" data-correct="true">Superintendencia Financiera</button><button class="answer-btn">URF</button></div>
+                        <p class="feedback" id="q1-feedback"></p>
+                    </div>
+                    <div class="question">
+                        <p><b>2. Si su banco quiebra, ¿qué entidad protege sus ahorros hasta por $50 millones?</b></p>
+                        <div class="answers" id="q2-answers"><button class="answer-btn" data-correct="true">Fogafín</button><button class="answer-btn">Datacrédito</button><button class="answer-btn">Defensor del Consumidor</button></div>
+                        <p class="feedback" id="q2-feedback"></p>
+                    </div>
+                    <div class="question">
+                        <p><b>3. ¿Qué tipo de entidad es pilar de la inclusión financiera dando créditos a emprendedores?</b></p>
+                        <div class="answers" id="q3-answers"><button class="answer-btn">Banco Comercial</button><button class="answer-btn">Comisionista de Bolsa</button><button class="answer-btn" data-correct="true">Microfinanciera</button></div>
+                        <p class="feedback" id="q3-feedback"></p>
+                    </div>
+                    <div class="question">
+                        <p><b>4. Una cuenta de ahorros y un seguro de vida son ejemplos de:</b></p>
+                        <div class="answers" id="q4-answers"><button class="answer-btn" data-correct="true">Productos</button><button class="answer-btn">Servicios</button><button class="answer-btn">Instrumentos</button></div>
+                        <p class="feedback" id="q4-feedback"></p>
+                    </div>
+                    <div class="question">
+                        <p><b>5. Una app como Nequi es un ejemplo de:</b></p>
+                        <div class="answers" id="q5-answers"><button class="answer-btn">Cuenta Corriente</button><button class="answer-btn" data-correct="true">Billetera Digital</button><button class="answer-btn">Tarjeta de Crédito</button></div>
+                        <p class="feedback" id="q5-feedback"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const sections = Array.from(document.querySelectorAll('.section'));
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+        }, { threshold: 0.15 });
+        sections.forEach(section => observer.observe(section));
+
+        let currentSectionIndex = 0;
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+
+        const goToSection = (index) => {
+            if (index >= 0 && index < sections.length) {
+                sections[index].scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+
+        prevBtn.addEventListener('click', () => goToSection(currentSectionIndex - 1));
+        nextBtn.addEventListener('click', () => goToSection(currentSectionIndex + 1));
+        
+        const syncCurrentSection = () => {
+            let activeIndex = sections.findIndex(section => {
+                const rect = section.getBoundingClientRect();
+                return rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2;
+            });
+            if (activeIndex !== -1) {
+                currentSectionIndex = activeIndex;
+            }
+        };
+
+        const progressBar = document.getElementById('progress-bar');
+        const updateProgressBar = () => {
+            const scrollTotal = document.documentElement.scrollHeight - window.innerHeight;
+            progressBar.style.width = scrollTotal > 0 ? `${(window.scrollY / scrollTotal) * 100}%` : '0%';
+            syncCurrentSection();
+        };
+        window.addEventListener('scroll', updateProgressBar);
+        updateProgressBar();
+
+        const amountInput = document.getElementById('amount');
+        const rateInput = document.getElementById('rate');
+        const termInput = document.getElementById('term');
+        const monthlyPaymentEl = document.getElementById('monthly-payment');
+        const totalPaymentEl = document.getElementById('total-payment');
+        const totalInterestEl = document.getElementById('total-interest');
+        const formatCurrency = (value) => value.toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
+
+        const calculateLoan = () => {
+            const P = parseFloat(amountInput.value) || 0;
+            const annualRate = parseFloat(rateInput.value) || 0;
+            const n = parseInt(termInput.value) || 1;
+            if (P > 0 && annualRate > 0 && n > 0) {
+                const monthlyRate = Math.pow(1 + (annualRate / 100), 1 / 12) - 1;
+                const M = P * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
+                const totalPayment = M * n;
+                const totalInterest = totalPayment - P;
+                monthlyPaymentEl.textContent = formatCurrency(M);
+                totalInterestEl.textContent = formatCurrency(totalInterest);
+                totalPaymentEl.textContent = formatCurrency(totalPayment);
+            } else {
+                monthlyPaymentEl.textContent = formatCurrency(0);
+                totalInterestEl.textContent = formatCurrency(0);
+                totalPaymentEl.textContent = formatCurrency(0);
+            }
+        };
+        [amountInput, rateInput, termInput].forEach(input => input.addEventListener('input', calculateLoan));
+        calculateLoan();
+        
+        const setupQuizQuestion = (questionId) => {
+            const container = document.getElementById(questionId);
+            const answerButtons = container.querySelectorAll('.answer-btn');
+            const feedbackEl = container.nextElementSibling;
+            answerButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    answerButtons.forEach(btn => btn.disabled = true);
+                    if (button.dataset.correct === 'true') {
+                        button.classList.add('correct');
+                        feedbackEl.textContent = '¡Correcto! Muy bien.';
+                        feedbackEl.style.color = '#4CAF50';
+                    } else {
+                        button.classList.add('incorrect');
+                        feedbackEl.textContent = 'Casi. La respuesta correcta está en verde.';
+                        feedbackEl.style.color = '#F44336';
+                        container.querySelector('[data-correct="true"]').classList.add('correct');
+                    }
+                });
+            });
+        };
+        ['q1-answers', 'q2-answers', 'q3-answers', 'q4-answers', 'q5-answers'].forEach(setupQuizQuestion);
+    });
+    </script>
+</body>
+</html>
